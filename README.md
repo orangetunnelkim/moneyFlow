@@ -190,4 +190,92 @@ Spring Boot와 Retrofit을 사용하는 것은 REST API에 특화된 방식입�
 <br>레트로핏은 객체가 되어서 프런트 엔드 내에서 호출이 있을때마다 서버와 통신을 할것입니다.
 <br>기본 url은 서버가 구동되는 컴퓨터의 포트에 연결해야 합니다.
 <br>현재는 h2가상 서버를 내컴퓨터에 구축한것이고, 가상 에뮬레이터를 통해 접속했기때문에 ("http://10.0.2.2:8080") 를 넣어줬습니다.
+<br><br><br><br>
+```java
+interface MoneyService {
+    @GET("/money/{date}/contents")
+    public Call<List<MoneyFlow>> getMoneyFlowDate(@Path("date") String date);
+
+    @POST("/money/{id}/contents")
+    public Call<MoneyFlow> setMoneyFlow(@Path("id") Long id, @Body MoneyFlow moneyFlow);
+
+    @PATCH("/money/{id}/contents")
+    public Call<MoneyFlow> update(@Path("id") Long id, @Body MoneyFlow moneyFlow);
+
+    @DELETE("/money/{id}/contents")
+    public Call<MoneyFlow> delete(@Path("id") Long id);
+```
+<br>
+요청내용을 분기하는 인터페이스입니다.
+<br>@GET,@POST 등과같은 HTTP매쏘드와 요청 url주소에따라 백엔드의 컨트롤러에 정의된 작업메써드와 매핑됩니다.
+<br>프런트 엔드 내에서 moneyService.getMoneyFlowDate(날짜)를 호출하면 서버와 통신을 시도합니다.
+<br>지금 이 프로젝트는 날짜를 인자값으로 주면 그날짜에 해당하는 지출들을 가져오도록 되어 있습니다.
+<br>날짜를 JSON데이터로 주는 방식은 @Path로 url주소값에 써진채로 전달됩니다.
+<br>DB의 자원을 수정하거나 생성할땐 Body로 클래스에 참조자나 리스트를 만들어서 건내야합니다. 
+<br>무조건 클래스의 속성값이 변하거나 DB가 창조되는 작업이기 때문입니다.
+<br>그에비해 삭제나 조회는 아이디값만 주거나 명령만 필요하기때문에 @Body를 줄 필요가 없습니다.
+<br><br><br><br>
+
+```java
+private void fetchData(String date) {
+        moneyService.getMoneyFlowDate(date).enqueue(new Callback<List<MoneyFlow>>() {
+            @Override
+            public void onResponse(Call<List<MoneyFlow>> call, Response<List<MoneyFlow>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    moneyFlowList.clear();
+                    moneyFlowList.addAll(response.body());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<MoneyFlow>> call, Throwable t) {
+                Toast.makeText(MainActivity.this, "no data", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+```
+
+<br>
+
+![20250322_175242](https://github.com/user-attachments/assets/499ec08f-26a1-4296-b8f8-5a80342e5114)
+<br>
+백엔드와 통신을 시도하는 부분입니다.<br>
+<br> 성공한다면 날짜를 주고 그날짜의 가계부 리스트를 받는 JSON데이터 거래 행위가 일어납니다.
+<br><br><br><br>
+```java
+moneyService.getMoneyFlowDate(date).enqueue(new Callback<List<MoneyFlow>>() {
+            @Override
+            public void onResponse(Call<List<MoneyFlow>> call, Response<List<MoneyFlow>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    moneyFlowList.clear();
+                    moneyFlowList.addAll(response.body());
+                    dayAdapter.setDate(date);
+                    dayAdapter.notifyDataSetChanged();
+
+
+                    TextView numberOf = findViewById(R.id.numberOf);
+                    numberOf.setVisibility(VISIBLE);
+                    String numberText = moneyFlowList.size() + "";
+                    numberOf.setText(numberText + " 건");
+
+                    TextView acount = findViewById(R.id.acount);
+                    acount.setVisibility(VISIBLE);
+                    int acount_num = 0;
+                    for (int i = 0; i < moneyFlowList.size(); i++) {
+                        if (moneyFlowList.get(i).isSpend() == true) {
+                            acount_num += moneyFlowList.get(i).getCost();
+                        }
+                    }
+                    acount.setText(formatting(acount_num));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<MoneyFlow>> call, Throwable t) {
+                Toast.makeText(MainActivity.this, "no data", Toast.LENGTH_SHORT).show();
+            }
+```
+<br> 원래는 이렇게 통신에 성공한다면 가져온 리스트를 가지고 뷰에 붙이는 작업들이 추가되지만
+<br> RestAPI의 핵심내용이 아니라 생략한 내용이니 참고 바랍니다.
+
 
