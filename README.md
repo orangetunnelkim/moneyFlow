@@ -438,7 +438,7 @@ public static MoneyFlow createMoneyFlow(MoneyFlowDTO dto, Categories category) {
 
 ![20250322_215412](https://github.com/user-attachments/assets/4d2a62c2-ee41-4aff-a026-403057596f19)
 <br>
-자바에서 접근제어자나 캡슐화를 이용해서 데이터나 함수의 외부접근을 제한하는것과 같은 맥락으로 보여집니다.
+자바에서 접근제어자나 캡슐화를 이용해서 변수나 함수의 외부접근을 제한하는것과 같은 맥락으로 보여집니다.
 
 
 
