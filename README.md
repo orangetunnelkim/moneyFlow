@@ -46,9 +46,10 @@
     * 예산 등록
   * 기대 효과
  * 객체지향적 데이터관리
-   * MoneyFlow 클래스
-   * Categories 클래스
-   * Predict 클래스
+   * 역할과 포함된 속성
+     * MoneyFlow 클래스
+     * Categories 클래스
+     * Predict 클래스
 
 <br>
 <br>
@@ -80,3 +81,58 @@
 
 이 세가지 기능을 목적에 맞게 하기위해서 3개의 클래스를 각각 만듭니다. 
 클래스는 백엔드와 프론트 엔드를 넘나들며 서로 상호작용하고, 데이터들을 비교하고 필요한 값들을 산출합니다.
+
+>역할과 포함된 속성
+<br><br>
+
+**MoneyFlow 클래스**
+
+```java
+class MoneyFlow {
+//    private Categories category;
+    private Long id;
+    private Long categoriesId;
+    private String nowDate;
+    private String content;
+    private int cost;
+    private boolean spend;
+```
+<br>
+일일 가계부를 추가하는 가장 작은단위의 데이터<br>
+카테고리, 날짜, 사용처, 금액, 수입or 지출 여부 가 있습니다.
+<br><br><br><br>
+
+**Categories 클래스**
+```java
+class Categories {
+    private String imageName;
+    private String categoryName;
+    private Long id;
+```
+<br>
+
+![20250322_161339](https://github.com/user-attachments/assets/2aa13ff3-e3f5-4194-916f-f25d21582da5)
+
+
+리사이클러뷰에 표시할 카테고리이름과 카테고리 아이콘을 관리하는 클래스입니다.<br>
+백엔드에서 초기화 데이터를 생성시 참조자들이 한번만 만들어집니다.<br>
+추후 카테고리 추가할 필요가 있다면 data.sql에 추가해줍니다.<br>
+<br><br><br>
+
+**Predict 클래스**
+```java
+class Predict  {
+    private Long id;
+    private int year;
+    private int month;
+    private Long categoryId;
+    private int predict;
+    private int monthCost;
+```
+<br>
+MoneyFlow 클래스를 통해 만들어진 객체들을 기반으로 월별, 카테고리별 예산을 관리하는 클래스
+<br> 월, 카테고리, 예산, 한달 사용금액 속성이 있습니다.
+<br> 예산을 설정거나 수정할때만 사용되는 클래스 입니다.
+<br><br><br><br>
+
+
