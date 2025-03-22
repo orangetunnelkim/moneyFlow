@@ -291,6 +291,8 @@ moneyService.getMoneyFlowDate(date).enqueue(new Callback<List<MoneyFlow>>() {
 스프링부트 이니셜라이저로 필요한 라이브러리들을 넣고 파일을 생성후 인텔리제이에서 불러옵니다.
 <br>또는 build.gradle 파일에서 라이브러리들을 직접 추가해도 됩니다. 하지만 위의 방식이 더 편합니다.
 <br><br><br><br> 여기부턴 백엔드 부분입니다.
+<br>개발을 하다보면 프런트엔드의 요청부분과 백엔드의 접수부분이 비슷해서 왔다갔다하다보면 헷갈릴때가 많습니다.
+<br>그때는 어노테이션을 보고 Mapping이 뒤에붙은건 백엔드이고 @GET,@POST처럼 아무것도 안오면 프런트엔드라 생각하면 구분하기 쉽습니다.
 ```java
 @RestController
 class contentController {
