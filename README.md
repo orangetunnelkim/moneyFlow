@@ -279,5 +279,16 @@ moneyService.getMoneyFlowDate(date).enqueue(new Callback<List<MoneyFlow>>() {
 ```
 <br> 원래는 이렇게 통신에 성공한다면 가져온 리스트를 가지고 뷰에 붙이는 작업들이 추가되지만
 <br> RestAPI의 핵심내용이 아니라 생략한 내용이니 참고 바랍니다.
+<br>
+<br> 프런트앤드에서 통신시도를 했으니 백엔드 쪽으로 가겠습니다.
+<br><br><br><br>
+인텔리제이 개발도구를 사용해 스프링부트 프레임워크를 사용했습니다.
+<br>
+![20250322_185932](https://github.com/user-attachments/assets/a73ccd9f-94d3-4c9a-99a9-2ac1eeea1a86)
+<br>
+
+스프링부트 이니셜라이저로 필요한 라이브러리들을 넣고 파일을 생성후 인텔리제이에서 불러옵니다.
+<br>또는 build.gradle 파일에서 라이브러리들을 직접 추가해도 됩니다. 하지만 위의 방식이 더 편합니다.
+
 
 
