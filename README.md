@@ -377,8 +377,8 @@ public class MoneyFlowDTO {
 ```
 <br> 
 백엔드의 맨 앞단에서 @Body의 자료형인 클래스와 속성명이 모두 일치되는 dto로 먼저 @Body를 받습니다.
-<br>클래스와 속성명의 이름만 맞춰주면 알아서 매핑되어 바디를 인식합니다. 이런 점 때문에 빠른 개발을 위해 프레임워크 사용이 권장됩니다.
-<br>dto는 컨트롤러에서 엔티티로 변환합니다. 
+<br>클래스와 속성명의 이름만 맞춰주면 알아서 매핑되어 바디를 인식합니다.
+<br>컨트롤러에서는 dto를 엔티티로 변환합니다. 
 <br><br><br><br>
 
 <br>
@@ -410,7 +410,10 @@ public class MoneyFlow {
     private boolean spend;
 ```
 <br>Entity 입니다. 엔티티는 dto와 다르게 category처럼 클래스를 데이터타입으로 가져도 됩니다.
-<br> 뒷단에서 DB의 테이블을 만드는데 필요할뿐 dto처럼 JSON데이터를 직접 받지 않기 때문입니다.
+<br> 하나의 카테고리엔 여러개의 일일가계부가 등록되지만, 하나의 가계부엔 여러 카테고리가 중복으로 들어갈 수 없습니다.
+<br> 떡볶이가 식비에 해당되지만 교통비로 들어갈 수 없습니다. 쇼핑으로 떡볶이를 살 수 있지만 식비 카테고리로 이미 써진 지출을 두번 쓸 수는 없습니다.
+<br> 이것은 다대일 관계입니다. JPA는 이러한 관계형(객체지향형) 데이터베이스를 지원합니다. 
+<br> 즉,일일가계부에 등록된 하나의 레코드에는 카테고리의 참조자가 하나 들어가고 대표하는 속성이름이 카테고리 아이디값으료 표시 됩니다.
 <br>dto를 컨트롤러에서 entity로 바꿔주고 Repository를 통해 테이블에 저장해줍니다.
 <br><br><br><br>
 
@@ -434,14 +437,60 @@ public static MoneyFlow createMoneyFlow(MoneyFlowDTO dto, Categories category) {
 
 
 <br> 이렇게 엔티티안에 함수를 만들어 dto를 Entity로 바꿔도 좋습니다. 
+<br> 엔티티의 객체가 되었다는건 자바 객체를 DB가 이해할 수 있게 바꿨다는 말입니다.
+<br> 이렇게 통신을 한사이클 돌렸고, RestAPI를 사용하는 방법을 알아보았습니다. 
 <br>
+<br><br><br>
+```java
+@PostMapping("/money/{id}/contents")
+    public MoneyFlowDTO addMoneyFlow(@PathVariable("id") Long categoriesId,
+                                     @RequestBody MoneyFlowDTO dto) {
+        Categories category = categoriesRepo.findById(categoriesId)
+                .orElseThrow(() -> new IllegalArgumentException("가계부 등록 실패! " +
+                        "대상 카테고리 없습니다.")); //카테고리 아이디 갖고 카테고리 참조자 갖고옴, 카테고리 입력 안됐을때 처리
+        System.out.println(dto.isSpend()+""); //왜 true를 넣었는데 false값이 나오는지 ????
+        MoneyFlow moneyFlow = MoneyFlow.createMoneyFlow(dto, category); // dto->Entity
+        MoneyFlow created = moneyFlowRepo.save(moneyFlow); //repo에 저장 하면서 동시에 Entity만듬
+        MoneyFlowDTO createdDto = createMoneyFlowDTO(created); // Entity->dto
+        return createdDto;
+    }
 
+    @PatchMapping("/money/{id}/contents")
+    public ResponseEntity<MoneyFlowDTO> update(@PathVariable Long id,
+                                               @RequestBody MoneyFlowDTO dto){
+        MoneyFlow target=moneyFlowRepo.findById(id) //타겟은 레포에서 꺼낸 참조자
+                .orElseThrow(()->new IllegalArgumentException("가계부 수정 실패! "+
+                        "대상 가계부가 없습니다."));
+        Categories updateCategory= categoriesRepo.findById(dto.getCategoriesId()) //카테고리 아이디로 참조자를 찾아옴
+                        .orElseThrow(()->new IllegalArgumentException("Category ID: "+dto.getCategoriesId()+"를 찾을 수 없습니다."));
+                                target.setCategory(updateCategory); //참조자를 MoneyFlow의 속성에 할당
+
+        target.patch(dto);
+        MoneyFlow updated= moneyFlowRepo.save(target);
+        MoneyFlowDTO updatedDto= createMoneyFlowDTO(updated);
+
+        return ResponseEntity.status(HttpStatus.OK).body(updatedDto);
+    }
+```
+<br> 저는 이렇게 백엔드의 모든과정을 컨트롤러 안에서 되도록 작성했지만 서비스 클래스를 따로 만들어서 뼈대만 남기면 더 가독성이 좋아집니다.
+<br> 그렇게 코드를 수정해 보겠습니다. 
+<br><br><br>
+```java
+    @PostMapping("/money/{id}/contents")
+    public MoneyFlowDTO addMoneyFlow(@PathVariable("id") Long categoriesId,
+                                     @RequestBody MoneyFlowDTO dto){
+        MoneyFlowDTO createdDto = MoneyFlowService.addService(CategoriesId,dto); // Entity->dto
+        return createdDto;
+    }
+    @PatchMapping("/money/{id}/contents")
+    public ResponseEntity<MoneyFlowDTO> update(@PathVariable Long id,
+                                               @RequestBody MoneyFlowDTO dto){
+        MoneyFlowDTO updatedDto= MoneyFlowService.patchService(id,dto);
+        return ResponseEntity.status(HttpStatus.OK).body(updatedDto);
+    }
+
+```
 <br>
-
-![20250322_215412](https://github.com/user-attachments/assets/4d2a62c2-ee41-4aff-a026-403057596f19)
-<br>
-자바에서 접근제어자나 캡슐화를 이용해서 변수나 함수의 외부접근을 제한하는것과 같은 맥락으로 보여집니다.
-
 
 
 
