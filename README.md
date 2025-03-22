@@ -358,6 +358,91 @@ Respository 인터페이스입니다. findByNowDate처럼 기본적으로 지원
 
 ![KakaoTalk_20250322_190844531](https://github.com/user-attachments/assets/929d69c7-e138-47d1-a2e5-b40671c3d56b)
 <br>
+수정이나 생성의 경우엔 @Body가 서버로 옵니다. 
+```java
+@AllArgsConstructor
+@ToString
+@NoArgsConstructor
+@Getter
+public class MoneyFlowDTO {
+    private Long id;
+    private LocalDate nowDate;
+
+    private Long categoriesId;
+    private String content;
+    private int cost;
+    private boolean spend;
+```
+<br> 
+백엔드의 맨 앞단에서 @Body의 자료형인 클래스와 속성명이 모두 일치되는 dto로 먼저 @Body를 받습니다.
+<br>클래스와 속성명의 이름만 맞춰주면 알아서 매핑되어 바디를 인식합니다. 이런 점 때문에 빠른 개발을 위해 프레임워크 사용이 권장됩니다.
+<br>dto는 컨트롤러에서 엔티티로 변환합니다. 
+<br><br><br><br>
+
+<br>
+
+```java
+@Entity
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@ToString
+@Setter
+public class MoneyFlow {
+    @Column(name="now_date")
+    private LocalDate nowDate;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "categories_id") //카테고리 아이디를 객체생성할때 넣으면 카테고리에 참조자를 만든다.
+    private Categories category;
+    @Column
+    private String content;
+    @Column
+    private int cost;
+    @Column
+    private boolean spend;
+```
+<br>Entity 입니다. 엔티티는 dto와 다르게 category처럼 클래스를 데이터타입으로 가져도 됩니다.
+<br> 뒷단에서 DB의 테이블을 만드는데 필요할뿐 dto처럼 JSON데이터를 직접 받지 않기 때문입니다.
+<br>dto를 컨트롤러에서 entity로 바꿔주고 Repository를 통해 테이블에 저장해줍니다.
+<br><br><br><br>
+
+```java
+public static MoneyFlow createMoneyFlow(MoneyFlowDTO dto, Categories category) {
+        if (dto.getId() != null)
+            throw new IllegalArgumentException("지출/소득 생성 실패! 아이디가 없어야합니다."); //moneyflow의 아이디는 지정이 아닌 자동 할당이다.
+        if (dto.getCategoriesId() != category.getId())
+            throw new IllegalArgumentException("지출/소득 생성 실패! 카테고리의 id가 잘못됐습니다.");//클라이언트가 요청한 path의 ID값과 body의 카테고리Id가 일치하지 않을때
+
+        return new MoneyFlow(
+                dto.getNowDate(),
+                dto.getId(),
+                category,
+                dto.getContent(),
+                dto.getCost(),
+                dto.isSpend()
+        );
+    }
+```
+
+
+<br> 이렇게 엔티티안에 함수를 만들어 dto를 Entity로 바꿔도 좋습니다. 
+<br>
+
+<br>
+
+![20250322_215412](https://github.com/user-attachments/assets/4d2a62c2-ee41-4aff-a026-403057596f19)
+<br>
+마치 자바에서 접근제어자나 캡슐화를 이용해서 데이터나 함수의 외부접근을 제한하는것과 같은 맥락의 말이지 않을까 합니다. 
+
+
+
+
 
 
 
