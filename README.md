@@ -241,6 +241,8 @@ private void fetchData(String date) {
 <br>
 백엔드와 통신을 시도하는 부분입니다.<br>
 <br> 성공한다면 날짜를 주고 그날짜의 가계부 리스트를 받는 JSON데이터 거래 행위가 일어납니다.
+<br> 데이터를 수정하거나 생성할때도 마찬가지입니다. 
+<br>클래스에 올라온 리스트나 참조자를 불러서 바디를 주고 목적에 맞는 인터페이스의 메써드를 호출하면 됩니다.
 <br><br><br><br>
 ```java
 moneyService.getMoneyFlowDate(date).enqueue(new Callback<List<MoneyFlow>>() {
