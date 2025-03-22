@@ -240,6 +240,7 @@ private void fetchData(String date) {
 ![20250322_175242](https://github.com/user-attachments/assets/499ec08f-26a1-4296-b8f8-5a80342e5114)
 <br>
 백엔드와 통신을 시도하는 부분입니다.<br>
+enqueue는 비동기식으로 서버에 통신할때 사용합니다. 웬만하면 거의 모든 통신은 비동기식으로 일어납니다.
 <br> 성공한다면 날짜를 주고 그날짜의 가계부 리스트를 받는 JSON데이터 거래 행위가 일어납니다.
 <br> 데이터를 수정하거나 생성할때도 마찬가지입니다. 
 <br>클래스에 올라온 리스트나 참조자를 불러서 바디를 주고 목적에 맞는 인터페이스의 메써드를 호출하면 됩니다.
@@ -289,6 +290,77 @@ moneyService.getMoneyFlowDate(date).enqueue(new Callback<List<MoneyFlow>>() {
 
 스프링부트 이니셜라이저로 필요한 라이브러리들을 넣고 파일을 생성후 인텔리제이에서 불러옵니다.
 <br>또는 build.gradle 파일에서 라이브러리들을 직접 추가해도 됩니다. 하지만 위의 방식이 더 편합니다.
+<br><br><br><br> 여기부턴 백엔드 부분입니다.
+```java
+@RestController
+class contentController {
+    @Autowired
+    MoneyFlowRepo moneyFlowRepo;
+    @Autowired
+    CategoriesRepo categoriesRepo;
+
+    //http://localhost:8080/money/2025-02-26/contents 되는것 확인
+    @GetMapping("/money/{date}/contents")
+    public List<MoneyFlow> getByDate(@PathVariable("date") String date) {
+        System.out.println(date);
+        LocalDate localDate = LocalDate.parse(date);
+        return moneyFlowRepo.findByNowDate(localDate);
+    }
+```
+<br>
+@RestController 어노테이션은 RestApi를 사용하는 표시입니다.
+<br>
+@Autowired는 자동 객체 생성입니다. MoneyFlowRepo moneyFlowRepo=new MoneyFlowRepo(); 
+<br>이런식으로 하지않아도 인스턴스를 자동생성 할 수 있습니다.
+<br>MoneyFlowRepo, CategoriesRepo 는 JpaRepository를 상속한 인터페이스인데 
+<br>엔티티가 DB속 테이블에 저장 및 관리될 수 있도록 합니다.
+<br> @GetMapping HTTP메써드와 url 주소가 위에 프런트엔드에서 요청한 것과 동일합니다.
+<br> 리스트타입을 리턴하는 getByDate() 메써드의 작업명령서가 도착하고 요청을 접수받았습니다.
+<br>
+<br><br><br>
+
+![image](https://github.com/user-attachments/assets/e2b5e7ac-cfbe-4adf-89c1-9ede11b0004c)
+
+<br>Repository에서 쉽게 날짜를 찾을수 있도록 String데이터로 도착한 날짜의 데이터타입을 바꿔줬습니다.
+<br>그리고 Repository가 지원하는 함수를 사용해 날짜에 해당하는 엔티티클래스의 리스트를 클라이언트 쪽으로 리턴해줍니다.
+<br>
+<br><br><br>
+```java
+interface MoneyFlowRepo extends JpaRepository<MoneyFlow, Long> {
+    List<MoneyFlow> findByNowDate(LocalDate nowDate);
+
+    @Query(value = "SELECT TO_CHAR(DATE_TRUNC('MONTH', m.now_date), 'YYYY-MM') AS month_start, m.categories_id, SUM(m.cost) AS total_cost " +
+            "FROM MONEY_FLOW m " +
+            "WHERE YEAR(m.now_date) = :year " +
+            "AND MONTH(m.now_date) = :month " +
+            "AND m.spend = true " +
+            "GROUP BY TO_CHAR(DATE_TRUNC('MONTH', m.now_date), 'YYYY-MM'), m.categories_id " +
+            "ORDER BY month_start DESC", nativeQuery = true)
+    List<Object[]>getMonthlyCostByCategory(int year,int month);
+
+    @Query("SELECT m FROM MoneyFlow m " +
+            "WHERE m.category.id = :categoryId " +
+            "AND YEAR(m.nowDate) = :year " +
+            "AND MONTH(m.nowDate) = :month " +
+            "AND m.spend = true")
+    List<MoneyFlow> findByCategoryAndMonth(@Param("categoryId") Long categoryId,
+                                           @Param("year") int year,
+                                           @Param("month") int month);
+}
+```
+<br>
+Respository 인터페이스입니다. findByNowDate처럼 기본적으로 지원하는 함수가 있다면 쓰면되지만 <br>
+밑에 함수들처럼 새로운 데이터의 흐름이 필요할땐 가상의 테이블을 참조해야하기때문에 쿼리문을 써야합니다.
+<br><br><br><br>
+이런식으로 서버와 클라이언트간 통신이 됩니다.
+<br>
+<br>
+
+![KakaoTalk_20250322_190844531](https://github.com/user-attachments/assets/929d69c7-e138-47d1-a2e5-b40671c3d56b)
+<br>
+
+
+
 
 
 
