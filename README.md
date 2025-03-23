@@ -590,7 +590,77 @@ dayView = findViewById(R.id.dayView);
     }
 
 ```
-<br> 
+<br> 뷰홀더는 R.layout.pay_day_rv , 이렇게 아이템 하나만을 참고하게 되어있지만 
+<br><br><br><br>
 
+```java
+ public void setItemView(MoneyFlow moneyFlow,Categories category){
+            int imageId= this.itemView.getContext().getResources().getIdentifier(
+                    category.getImageName(),"drawable",this.itemView.getContext().getPackageName());
+            dayContent.setVisibility(VISIBLE);
+            dayCategoryName.setVisibility(VISIBLE);
+            dayCategoryImage.setImageResource(imageId);
+            dayContent.setText(moneyFlow.getContent());
+            dayCategoryName.setText(category.getCategoryName());
+            dayPrice.setText(MainActivity.formatting(moneyFlow.getCost()));
+        }
+        public void setFinalView(){
+            dayCategoryImage.setImageResource(R.drawable.add);
+            dayContent.setVisibility(INVISIBLE);
+            dayCategoryName.setVisibility(INVISIBLE);
+            dayPrice.setText("내역 추가");
+        }
 
+```
+<br> position값을 이용해 뷰를 붙이는 함수를 나눈 것 입니다. 결과적으로 마지막뷰는 내역추가를 표시합니다.
+<br> 뷰를 붙이는 부분을 보면 category, moneyFlow 두 객체를 모두 사용합니다.
+<br> category의 아이콘 이미지는 'food','shopping' 등 String타입으로 넘어오지만 
+<br>안드로이드 스튜디오의 drawable에 있는 food,shopping 이미지와 매핑하기위해 imageId 에서 저러한 작업이 있습니다.
+<br>
+<br>그럼 이제는 리스트와 내역추가중 클릭되는것에 따라서 액티비티를 달리하는 클릭리스너를 살펴보겠습니다. 
 
+```java
+ public class ViewHolder extends RecyclerView.ViewHolder
+            implements View.OnClickListener {
+        ImageView dayCategoryImage;
+```
+
+<br>뷰홀더는 클릭리스너 인터페이스의 추상메써드를 구현하도록 되어있습니다.
+<br><br><br><br>
+
+```java
+public ViewHolder(@NonNull View itemView) {
+            super(itemView);
+
+            dayCategoryImage=itemView.findViewById(R.id.day_category_image);
+            dayContent=itemView.findViewById(R.id.day_content);
+            dayCategoryName=itemView.findViewById(R.id.day_category_name);
+            dayPrice=itemView.findViewById(R.id.day_price);
+
+            itemView.setOnClickListener(this);
+        }
+```
+<br> 뷰홀더 하나의 어느부분을 클릭하든 실행되도록 리스너의 객체를 등록했습니다.
+<br><br><br><br>
+
+```java
+@Override
+        public void onClick(View view) {
+
+          int position=getAdapterPosition();
+
+            if (position==moneyFlowList.size()) { // "내역 추가" 뷰 클릭 시
+                Intent intent = new Intent(mContext, AddPay.class);
+                intent.putExtra("Date", date);
+                ((MainActivity)mContext).getLauncher().launch(intent);
+            } else { // 일반 아이템 클릭 시
+                Log.v("post",position+"");
+                Intent intent = new Intent(mContext, EditPay.class);
+                intent.putExtra("position",position);
+                intent.putExtra("fromActivity",MainActivity.class.getSimpleName());
+                ((MainActivity)mContext).getLauncher().launch(intent);
+            }
+        }
+```
+<br> getAdapterPosition() 함수를 이용해 지금 클릭된곳의 위치에 따라 다른액티비티로 이동하도록
+<br> 필요한 값들과 함께 인텐트를 줬습니다. launcher는 여기서 중요한 역할을 합니다.
