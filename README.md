@@ -55,6 +55,8 @@
     * 스프링부트
     * 레트로핏
     * 사용방법
+  * 프로젝트 개발과정
+     * 캘린더와 리사이클러뷰(일일 가계부)
    
 
 <br>
@@ -490,13 +492,105 @@ public static MoneyFlow createMoneyFlow(MoneyFlowDTO dto, Categories category) {
     }
 
 ```
+<br><br><br><br>
+### 5.프로젝트 개발과정
+
+개발과정은 주로 프런트엔드를 다룹니다.
+>캘린더와 리사이클러뷰(일일 가계부)
+
+<br> 날짜 클릭을 바꿀때마다 해당 날짜에 저장된 가계부를 리사이클러뷰로 표시합니다.
+
+```java
+calendarView.setOnDateChangeListener((view, year, month, dayOfMonth) -> {
+            String selectedDate = toFormatDate(year, month, dayOfMonth);
+            fetchData(selectedDate);
+        });
+        calendarView.setDate(System.currentTimeMillis(), false, true);
+```
+
+<br> 액티비티가 onCreate시에 기본날짜가 셋팅되어있습니다. 맨 아래 코드입니다.
+<br> 이벤트를 사용해 캘린더의 날짜를 누를때마다 fetchData(selectedDate); 메써드가 비동기식으로 호출됩니다.
+<br><br><br><br>
+```java
+private void fetchData(String date) {
+
+        moneyService.getMoneyFlowDate(date).enqueue(new Callback<List<MoneyFlow>>() {
+            @Override
+            public void onResponse(Call<List<MoneyFlow>> call, Response<List<MoneyFlow>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    moneyFlowList.clear();
+                    moneyFlowList.addAll(response.body());
+                    dayAdapter.setDate(date);
+                    dayAdapter.notifyDataSetChanged();
+                        }
+
+            @Override
+            public void onFailure(Call<List<MoneyFlow>> call, Throwable t) {
+                Toast.makeText(MainActivity.this, "no data", Toast.LENGTH_SHORT).show();
+            }
+        });
+```
+<br> 서버에서 넘어온 리스트를 moneyFlowList를 비움과 동시에 추가합니다. 
+<br>notifyDataSetChanged()는 어댑터의 데이터(moneyFlowList)가 변경되었으니 뷰를 다시그리라는 매써드입니다.
+<br> 날짜가 변경되면 넘어오는 리스트들이 달라지니 뷰 목록도 업데이트해서 다시그려야 하기때문입니다. 
+<br><br> <br><br> 
+
+```java
+dayView = findViewById(R.id.dayView);
+        dayView.setLayoutManager(new LinearLayoutManager(this));
+        dayAdapter = new DayAdapter(this, moneyFlowList);
+        dayView.setAdapter(dayAdapter);
+```
+<br>
 <br>
 
+![20250323_123525](https://github.com/user-attachments/assets/a81e3a16-9bbc-487f-9ed4-04b48e0640b1)
+<br>
+<br>이렇게 List는 비동기식으로 값을 바꾸는 것입니다.
 
+<br><br><br><br>
+![KakaoTalk_20250322_161309119_07](https://github.com/user-attachments/assets/d361b8d2-36b3-4b30-8e34-af6463bf3e59)
+<br><br>
+이 리사이클러뷰의 특징은 표시된 리스트 맨 밑에 가계부를 하나 더 추가하는 내역추가 뷰를 구성한 것입니다. 
+<br>지금부턴 리사이클러뷰 어댑터의 코드 입니다.
 
+ ```java
+ @Override
+    public int getItemCount() {
+        return moneyFlowList.size()+1;
+    }
+```
+<br> 뷰홀더의 갯수를 리스트보다 한개 더 많게 만들거라고 전달해줍니다. 
 
+<br><br><br><br>
 
+```java
+ @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        if(position<moneyFlowList.size()) {
+            moneyFlow=moneyFlowList.get(position);//리스트중 하나의 참조자
+            category= moneyFlow.getCategory();
+            moneyFlow.setCategoriesId(category.getId());
+            holder.setItemView(moneyFlow, category);
+        }else{
+            holder.setFinalView();
+        }
+    }
+```
+<br> 서버로부터 dto가 아닌 Entity의 리스트가 넘어오기때문에 category는 아이디가 아닌 객체로 오게됩니다.
+<br> 리스트중 하나의 참조자를 moneyFlow로 할당하고, 그 참조자에 해당하는 category를 할당합니다.
+<br> 리스트 갯수까지는 두 변수를 인자로하는 함수로 보냅니다. else문은 리스트의 갯수가 초과된 마지막 하나의 뷰를 붙이는 함수입니다. 
+<br><br><br><br>
 
+```java
+@Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view=mInflater.inflate(R.layout.pay_day_rv,parent,false);
+        return new ViewHolder(view);
+    }
+
+```
+<br> 
 
 
 
