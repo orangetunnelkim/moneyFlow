@@ -126,4 +126,10 @@
 <br> RDS의 엔진으로는 postgresql을 DB로 사용하므로써 유지보수, 백업, 업데이트 등 운영부담을 감소시켰습니다.
 ![image](https://github.com/user-attachments/assets/e0976b31-5ba4-4561-9b53-77a741d49bc7)
 
+<br><br><br>
+인증 : JWT (도입 예정)
 <br>
+CI/CD (도입 예정)
+<br><br><br>
+### 1. 프로젝트 설계
+
