@@ -266,3 +266,55 @@ ctrl키를 누른채로 클릭하면 새창이 열립니다.
 
 <br>
 이러한 방법으로 프런트엔드에서는 서버로부터 가져온 객체를 이용해 프로그레스바로 쉽게 표현했습니다.
+<br><br><br><br>
+
+### 4.핵심코드 설명
+
+>백엔드 주요코드
+
+#### 엔티티
+
+```java
+@Entity   // 자바의 객체를 DB가 이해할 수 있는 언어로 변환해줌
+@Getter  
+@AllArgsConstructor //생성자 자동생성
+@NoArgsConstructor
+@Builder    //생성자 만들때 위치기반이 아닌 속성이름으로 매칭시킬 수 있음 
+@ToString       
+@Setter
+public class MoneyFlow {
+    @Column(name="now_date")
+    private LocalDate nowDate;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @ManyToOne  // 다대일 관계
+    @JoinColumn(name = "categories_id") //카테고리 아이디를 객체생성할때 넣으면 카테고리에 참조자와 연결됨
+    private Categories category;
+    @Column
+    private String content;
+    @Column
+    private int cost;
+    @Column
+    private boolean spend;
+```
+<br><br><br>
+
+#### 일일 가계부 조회 API
+<br>
+아래 그림의 주석에서 보이는것처럼 백엔드가 정상 구동되는지 탈렌드 사이트를 이용하거나 직접 url에서 테스트 하는 과정이 있었습니다. <br>
+JPA 라이브러리인 리파지터리를 이용하니 속성값에 따라 자동 조회해주는, 기본적으로 제공되는 함수(findByNowDate등)를 이용할 수 있어 편했습니다. 
+<br>
+
+```java
+//http://localhost:8080/money/2025-02-26/contents 되는것 확인
+    @GetMapping("/money/{date}/contents")
+    public List<MoneyFlow> getByDate(@PathVariable("date") String date) {
+        System.out.println(date);
+        LocalDate localDate = LocalDate.parse(date);
+        return moneyFlowRepo.findByNowDate(localDate);
+    }
+```
+
+
+
