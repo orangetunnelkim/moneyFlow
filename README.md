@@ -68,8 +68,8 @@
        * 레트로핏 인터페이스
        * 리사이클러뷰 어댑터
   * 5.향후 개선 계획
-     * aws ec2 RDS
      * jwt기반 로그인 및 인증기능
+     * CI/CD 방법론 적용
      * 예산 초과시 알림기능 추가
    <br><br>
 ### 1. 프로젝트 개요
@@ -372,3 +372,23 @@ moneyService.getMoneyFlowDate(date).enqueue(new Callback<List<MoneyFlow>>() {
             dayCategoryName.setText(category.getCategoryName());
             dayPrice.setText(MainActivity.formatting(moneyFlow.getCost()));
         }
+```
+<br><br><br><br>
+
+
+
+### 5. 향후 개선 계획
+
+> jwt기반 로그인 및 인증 기능 추가
+
+팀프로젝트이기 때문에 회원관리를 담당한 팀원이 jwt를 도입해 서버와 클라이언트들을 연결했지만,
+<br>프로젝트 제작 시간관계상 배포가 되지 않아 일정, 가계부를 담당한 팀원들은 jwt에대한 학습과 구현을 하지 못했습니다.
+<br><br>
+
+> CI/CD 적용
+
+자동 빌드, 테스트, 코드 품질검사<br>
+지속적 배포, 전달을 통해 개발속도 향상과 지속적인 개선을 가능하게 하는 효과를 기대할 수 있습니다.
+
+<br><br><br><br>
+이상 가계부 프로젝트에 대한 소개를 마칩니다. 감사합니다.
