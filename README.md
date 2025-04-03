@@ -338,3 +338,37 @@ Retrofit retrofit = new Retrofit.Builder()
                 .build();
         moneyService = retrofit.create(MoneyService.class);
 ```
+
+<br><br><br><br>
+#### RecyclerView 어댑터
+<br>
+아래 코드는 날짜를 클릭으로 바꿀때마다 실행되는 함수안에서 date라는 변수가 바뀜으로써 비동기적인 통신을 하는것입니다.
+<br>리사이클러뷰 어댑터를 셋팅할때 생성자로 보내놓았던 일가계부 리스트를 notifyDataSetChanged()로 새로고침 하도록 하였습니다.
+<br>
+
+```java
+moneyService.getMoneyFlowDate(date).enqueue(new Callback<List<MoneyFlow>>() {
+            @Override
+            public void onResponse(Call<List<MoneyFlow>> call, Response<List<MoneyFlow>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    moneyFlowList.clear();
+                    moneyFlowList.addAll(response.body());
+                    dayAdapter.setDate(date);
+                    dayAdapter.notifyDataSetChanged();
+```
+
+
+<br><br><br><br>
+백엔드에서 새로 가져온 리스트로 리사이클러뷰 어댑터에서는 아래와 같이 리스트중 참조자 하나씩을 돌면서 리사이클러뷰에 뷰를 붙이는 작업을 하게됩니다.
+<br>
+```java
+ public void setItemView(MoneyFlow moneyFlow,Categories category){
+            int imageId= this.itemView.getContext().getResources().getIdentifier(
+                    category.getImageName(),"drawable",this.itemView.getContext().getPackageName());
+            dayContent.setVisibility(VISIBLE);
+            dayCategoryName.setVisibility(VISIBLE);
+            dayCategoryImage.setImageResource(imageId);
+            dayContent.setText(moneyFlow.getContent());
+            dayCategoryName.setText(category.getCategoryName());
+            dayPrice.setText(MainActivity.formatting(moneyFlow.getCost()));
+        }
