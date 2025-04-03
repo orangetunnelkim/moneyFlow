@@ -220,8 +220,29 @@ interface MoneyService {
 <br><br><br>
 ### 3. 기능소개 및 시연
 <br>
+
 > 실행 영상
 <br>
 
 👉 [실행영상 보러가기](https://youtube.com/shorts/RXqdzRODD6k?si=Yqs7NZlkJiOhvtNX)
 ctrl키를 누른채로 클릭하면 새창이 열립니다.
+
+<br><br><br><br>
+
+>주요 화면 및 동작
+
+
+#### 날짜선택
+<br>
+아래 그림처럼 메인화면에서 달력의 한 날짜를 클릭하면 그 날짜의 일가계부들이 아래 리사이클러뷰로 표시됩니다.
+<br> 내역추가 뷰를 클릭하면 데이터를 생성하는 액티비티가 나오고, 일가계부를 클릭하면 수정이나 삭제하는 액티비티가 나오도록 하였습니다.
+<br><br>
+
+
+![날짜선택](https://github.com/user-attachments/assets/b10bc31c-6e03-4685-9cfb-e55e0d700cef)
+
+
+
+
+#### 예산설정 및 DB반영
+#### progressBar를 통한 시각화
