@@ -181,5 +181,36 @@ public List<PredictDTO> monthlySetUp(int year, int month) {
 ②메인에서 <이번달 예산> 버튼을 클릭하면 예산액티비티로 넘어가면서 서버에서 해당월의 예산 리스트를 가져와서 프로그레스바에 표시 <br>
 ③예산 액티비티에서<설정> 버튼을 클릭하면 예산객체들의 예산 속성을 변경할 수 있는 예산설정 액티비티에서 사용자 입력을 기다림<br>
 ④예산설정 액티비티에서 <설정> 버튼을 누르면 입력한 예산으로 리스트의 객체들을 수정한걸 서버로 보내 DB에 저장함
+<br><br><br><br>
 
+ #### API설계
+<br> 프런트 엔드에서 요청하는 HTTP메써드, URL들과 간단한 명세입니다. @Path는 URL에 포함되어 전달되고, @Body는 json데이터로 http요청의 본문에 참조자나 리스트가 전달되어 서버에서 dto로 받게됩니다.
+<br> 메써드의 리턴타입으로 서버에서 통신후 받아오는 데이터 타입을 확인할 수 있습니다.
 
+```java
+interface MoneyService {
+    @GET("/money/{date}/contents")  //날짜에 따른 일 가계부들을 가져옴
+    public Call<List<MoneyFlow>> getMoneyFlowDate(@Path("date") String date);
+
+    @POST("/money/{id}/contents")   //해당 날짜에 일가계부를 하나 생성함
+    public Call<MoneyFlow> setMoneyFlow(@Path("id") Long id, @Body MoneyFlow moneyFlow);
+
+    @PATCH("/money/{id}/contents")  //일가계부 중 하나의 데이터를 수정함
+    public Call<MoneyFlow> update(@Path("id") Long id, @Body MoneyFlow moneyFlow);
+
+    @DELETE("/money/{id}/contents")  //일가계부 중 하나의 데이터를 삭제함
+    public Call<MoneyFlow> delete(@Path("id") Long id);
+
+    @GET("/getMonthlyCost/{year}/{month}")   //해당 월의 예산객체를 가져옴
+    public Call<List<Predict>> getMonthlyCost(@Path("year") int year ,@Path("month") int month);
+
+    @GET("/getCategories")     //모든 카테고리의 아이콘 이미지와 카테고리이름을 가져옴
+    public Call<List<Categories>> getCategories();
+
+    @POST("/updatePredict")    //예산 객체를 수정함
+    public Call<List<Predict>> budgetUpdate(@Body List<Predict> changedBudgetList);
+
+    @GET("/getMonthPay/{categoryId}/{year}/{month}")   //해당 월,카테고리의 일가계부 리스트를 가져옴 
+    public Call<List<MoneyFlow>> getMonthPay(@Path("categoryId") Long categoryId,@Path("year")int year,@Path("month")int month);
+}
+```
