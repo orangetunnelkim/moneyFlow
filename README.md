@@ -240,9 +240,29 @@ ctrl키를 누른채로 클릭하면 새창이 열립니다.
 
 
 ![날짜선택](https://github.com/user-attachments/assets/b10bc31c-6e03-4685-9cfb-e55e0d700cef)
-
+<br><br><br><br>
 
 
 
 #### 예산설정 및 DB반영
+<br>
+메인화면에서 <이번 달 예산>을 클릭하면 아래 그림처럼 열리는 예산액티비티에서 예산테이블을 이용해 뷰를 셋팅 해야 했습니다. 예산객체생성 알고리즘에 따라 예산을 0원으로 하는 객체를 생성하거나, 원래 있다면 지출만 새로쓰는 DB 변환과정을 한번 거치도록 하였습니다.
+<br> <설정>버튼을 누르면 예산을 직접 수정하는 액티비티(오른쪽그림)가 열리고, <설정>을 누르면 입력한 예산으로 서버와 통신을 하여 예산리스트의 DB들을 수정하도록 하였습니다.
+ 
+![예산DB설정](https://github.com/user-attachments/assets/f45e9160-b28f-4cc8-82e8-4329bb74f424)
+
+
+<br><br><br><br>
+
 #### progressBar를 통한 시각화
+<br>
+
+```java
+                int monthAmount=p.getMonthCost();
+                int mothBudget=p.getPredict();
+                int percentage=(int) ((monthAmount/(float)mothBudget)*100);
+                budgetRatio.setProgress(percentage);
+``` 
+
+<br>
+이러한 방법으로 프런트엔드에서는 서버로부터 가져온 객체를 이용해 프로그레스바로 쉽게 표현했습니다.
