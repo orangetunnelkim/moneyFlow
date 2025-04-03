@@ -316,5 +316,25 @@ JPA 라이브러리인 리파지터리를 이용하니 속성값에 따라 자�
     }
 ```
 
+<br><br><br><br>
 
+> 프론트엔드 주요코드
 
+#### Retrofit API 인터페이스
+
+<br> 아래와같이 동일한 HTTP메써드와 URL을 가진 프론트엔드 인터페이스의 메써드를 호출해주면 레트로핏을 붙인 객체가 통신을 시도합니다.
+
+```java
+@GET("/money/{date}/contents")  //날짜에 따른 일 가계부들을 가져옴
+    public Call<List<MoneyFlow>> getMoneyFlowDate(@Path("date") String date);
+```
+
+<br> 레트로핏은 아래와 같이 서버가 구축되어있는 포트에 연결하여 인터페이스를 사용하도록 객체를 만들었습니다. <br>모든 API통신은 이것을 통해 되도록 했습니다.
+
+```java
+Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("http://10.0.2.2:8080")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        moneyService = retrofit.create(MoneyService.class);
+```
