@@ -54,7 +54,7 @@
       * 예산의 생성
      * 데이터흐름
      * API 설계
-  * 3. 기능소개 및 시연
+  * 3.기능소개 및 시연
      * 영상
      * 주요 화면 및 동작
        * 날짜선택
@@ -184,7 +184,7 @@ public List<PredictDTO> monthlySetUp(int year, int month) {
 <br><br><br><br>
 
  #### API설계
-<br> 프런트 엔드에서 요청하는 HTTP메써드, URL들과 간단한 명세입니다. @Path는 URL에 포함되어 전달되고, @Body는 json데이터로 http요청의 본문에 참조자나 리스트가 전달되어 서버에서 dto로 받게됩니다.
+<br> 프런트 엔드에서 요청하는 HTTP메써드, URL들과 간략한 명세입니다. @Path는 URL에 포함되어 전달되고, @Body는 json데이터로 http요청의 본문에 참조자나 리스트가 전달되어 서버에서 dto로 받게됩니다.
 <br> 메써드의 리턴타입으로 서버에서 통신후 받아오는 데이터 타입을 확인할 수 있습니다.
 
 ```java
