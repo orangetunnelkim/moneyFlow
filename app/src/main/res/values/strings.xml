@@ -1,0 +1,31 @@
+<resources>
+    <string name="app_name">toDoMoney</string>
+    <string name="action_setting">Settings</string>
+    <string name="hello_world">hello World"</string>
+    <string name="planet_prompt">카테고리를 선택하세요</string>
+
+    <string-array name="categories_array">
+        <item>식비</item>
+        <item>쇼핑</item>
+        <item>교통/통신/주거</item>
+        <item>의료/건강/경조사</item>
+        <item>여행/숙박/문화</item>
+        <item>교육/학습</item>
+        <item>수입</item>
+
+    </string-array>
+
+        <string-array name="categories_values">
+            <item>1</item>
+            <item>2</item>
+            <item>3</item>
+            <item>4</item>
+            <item>5</item>
+            <item>6</item>
+            <item>7</item>
+
+        </string-array>
+
+
+
+</resources>
