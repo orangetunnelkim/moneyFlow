@@ -403,63 +403,6 @@ public class MoneyFlow {
 ```
 <br><br><br>
 
-#### 일일 가계부 조회 API
-<br>
-아래 그림의 주석에서 보이는것처럼 백엔드가 정상 구동되는지 탈렌드 사이트를 이용하거나 직접 url에서 테스트 하는 과정이 있었습니다. <br>
-JPA 라이브러리인 리파지터리를 이용하니 속성값에 따라 자동 조회해주는, 기본적으로 제공되는 함수(findByNowDate등)를 이용할 수 있어 편했습니다. 
-<br>
-
-```java
-//http://localhost:8080/money/2025-02-26/contents 되는것 확인
-    @GetMapping("/money/{date}/contents")
-    public List<MoneyFlow> getByDate(@PathVariable("date") String date) {
-        System.out.println(date);
-        LocalDate localDate = LocalDate.parse(date);
-        return moneyFlowRepo.findByNowDate(localDate);
-    }
-```
-
-<br><br><br><br>
-
-> 프론트엔드 주요코드
-
-#### Retrofit API 인터페이스
-
-<br> 아래와같이 동일한 HTTP메써드와 URL을 가진 프론트엔드 인터페이스의 메써드를 호출해주면 레트로핏을 붙인 객체가 통신을 시도합니다.
-
-```java
-@GET("/money/{date}/contents")  //날짜에 따른 일 가계부들을 가져옴
-    public Call<List<MoneyFlow>> getMoneyFlowDate(@Path("date") String date);
-```
-
-<br> 레트로핏은 아래와 같이 서버가 구축되어있는 포트에 연결하여 인터페이스를 사용하도록 객체를 만들었습니다. <br>모든 API통신은 이것을 통해 되도록 했습니다.
-
-```java
-Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://10.0.2.2:8080")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-        moneyService = retrofit.create(MoneyService.class);
-```
-
-<br><br><br><br>
-#### RecyclerView 어댑터
-<br>
-아래 코드는 날짜를 클릭으로 바꿀때마다 실행되는 함수안에서 date라는 변수가 바뀜으로써 비동기적인 통신을 하는것입니다.
-<br>리사이클러뷰 어댑터를 셋팅할때 생성자로 보내놓았던 일가계부 리스트를 notifyDataSetChanged()로 새로고침 하도록 하였습니다.
-<br>
-
-```java
-moneyService.getMoneyFlowDate(date).enqueue(new Callback<List<MoneyFlow>>() {
-            @Override
-            public void onResponse(Call<List<MoneyFlow>> call, Response<List<MoneyFlow>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    moneyFlowList.clear();
-                    moneyFlowList.addAll(response.body());
-                    dayAdapter.setDate(date);
-                    dayAdapter.notifyDataSetChanged();
-```
-
 
 <br><br><br><br>
 백엔드에서 새로 가져온 리스트로 리사이클러뷰 어댑터에서는 아래와 같이 리스트중 참조자 하나씩을 돌면서 리사이클러뷰에 뷰를 붙이는 작업을 하게됩니다.
