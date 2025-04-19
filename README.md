@@ -37,40 +37,40 @@
 <br>
 <br>
 
-### 목차
-  * 1.프로젝트 개요
-     * 주요기능 요약
-       * CRUD(등록/ 리드/ 수정/ 삭제)
-       * 카테고리별 지출관리(6개의 카테고리)
-       * 예산대비 지출현황 시각화
-       * 월 예산 설정 및 저장
-       * 날짜별 지출내역 조회
-         * 일별
-         * 월별
-      * 기술스택
-  * 2.프로젝트 설계
-     * 엔티티의 관계도
-      * 다대일관계
-      * 예산의 생성
-     * 데이터흐름
-     * API 설계
-  * 3.기능소개 및 시연
-     * 영상
-     * 주요 화면 및 동작
-       * 날짜선택
-       * 예산설정 및 DB반영
-       * progressBar를 통한 시각화
-  * 4.핵심코드 설명
-     * 백엔드
-        * 엔티티
-        * 일일 가계부 조회 API
-     *프론트 엔드
-       * 레트로핏 인터페이스
-       * 리사이클러뷰 어댑터
-  * 5.향후 개선 계획
-     * jwt기반 로그인 및 인증기능
-     * CI/CD 방법론 적용
-     * 예산 초과시 알림기능 추가
+  ### 📖 목차
+
+1. 🔍 프로젝트 개요  
+   1.1 주요 기능 요약  
+   1.2 핵심 기술 스택
+
+2. 🧠 설계 구조 및 기술 흐름  
+   2.1 데이터 모델 및 엔티티 관계  
+   2.2 주요 기능 흐름  
+   2.3 API 명세 및 구조
+
+3. 💡 핵심 구현 포인트 (중요 기능 상세 설명)  
+   3.1 날짜별 지출 내역 조회 (RecyclerView + Retrofit + CalendarView)  
+   3.2 예산 설정 및 시각화 (ProgressBar + 예산 저장)  
+   3.3 카테고리별 지출 관리 (다대일 매핑 + 이미지, 이름 출력)  
+
+4. 📸 기능 시연  
+   4.1 실행 영상  
+   4.2 주요 화면 스크린샷  
+   4.3 사용자 흐름 요약
+
+5. 💻 핵심 코드 스니펫  
+   5.1 Backend (Spring Boot)  
+       - 엔티티 설계  
+       - 날짜별 조회 API  
+   5.2 Frontend (Android)  
+       - Retrofit 인터페이스  
+       - RecyclerView 어댑터  
+       - 데이터 바인딩 및 UI 갱신
+
+6. 🚀 향후 발전 방향  
+   - JWT 기반 로그인 인증  
+   - 예산 초과 시 알림 기능  
+   - AWS RDS + CI/CD 구축
    <br><br>
 ### 1. 프로젝트 개요
 > 주요기능 요약
@@ -130,99 +130,7 @@
 
 ---
 
-### 🖱️ 1. 날짜 선택 이벤트 감지
 
-```java
-calendarView.setOnDateChangeListener((view, year, month, dayOfMonth) -> {
-    String selectedDate = toFormatDate(year, month, dayOfMonth);
-    fetchData(selectedDate); // 서버 요청 함수 호출
-});
-```
-
-사용자가 날짜를 누르면 fetchData() 함수 실행
-
-선택한 날짜는 yyyy-MM-dd 형식의 문자열로 변환
-<br><br><br>
-### 🔄 2. 서버 요청 및 RecyclerView 갱신
-
-```java
-private void fetchData(String date) {
-    moneyService.getMoneyFlowDate(date).enqueue(new Callback<List<MoneyFlow>>() {
-        @Override
-        public void onResponse(Call<List<MoneyFlow>> call, Response<List<MoneyFlow>> response) {
-            if (response.isSuccessful() && response.body() != null) {
-                moneyFlowList.clear();
-                moneyFlowList.addAll(response.body());
-                dayAdapter.setDate(date);
-                dayAdapter.notifyDataSetChanged(); // UI 갱신
-            }
-        }
-
-        @Override
-        public void onFailure(Call<List<MoneyFlow>> call, Throwable t) {
-            // 예외 처리
-        }
-    });
-}
-```
-
-Retrofit을 사용하여 서버와 비동기 통신
-
-성공적으로 데이터를 받아오면 리스트 갱신 및 UI 업데이트
-<br><br><br><br>
-### 🔗3. Retrofit 연결 설정
-
-```java
-Retrofit retrofit = new Retrofit.Builder()
-    .baseUrl("http://10.0.2.2:8080")
-    .addConverterFactory(GsonConverterFactory.create())
-    .build();
-
-moneyService = retrofit.create(MoneyService.class);
-```
-
-
-
-### 🧩 4. 인터페이스 정의
-```java
-interface MoneyService {
-    @GET("/money/{date}/contents")
-    Call<List<MoneyFlow>> getMoneyFlowDate(@Path("date") String date);
-}
-```
-
-### 🌐 5. 서버 - Spring Boot Controller
-<br>
-
-```java
-@GetMapping("/money/{date}/contents")
-public List<MoneyFlow> getByDate(@PathVariable("date") String date) {
-    LocalDate localDate = LocalDate.parse(date);
-    return moneyFlowRepo.findByNowDate(localDate);
-}
-```
-
-클라이언트로부터 날짜를 받아 LocalDate로 변환
-
-해당 날짜의 MoneyFlow 데이터를 DB에서 조회하여 반환
-
-
-
-<br><br><br>
-### 💡 기술 포인트
-CalendarView의 setOnDateChangeListener 활용
-
-Retrofit 기반 비동기 API 연동
-
-Spring Boot REST API 구성 (/money/{date}/contents)
-
-RecyclerView 리스트 업데이트 구조화
-
-클라이언트-서버 간 날짜 포맷 통일 (yyyy-MM-dd)
-
-
-
-<br><br><br><br>
 > 기술 스택
 
 <br> 프런트 엔드는 안드로이드 스튜디오를 사용하였습니다. 프런트엔드 단의 레트로핏과 서버의 스프링부트를 연결해 JSON데이터를 주고 받는 RESTAPI를 사용했습니다.
@@ -319,6 +227,100 @@ interface MoneyService {
     public Call<List<MoneyFlow>> getMonthPay(@Path("categoryId") Long categoryId,@Path("year")int year,@Path("month")int month);
 }
 ```
+
+### 🖱️ 1. 날짜 선택 이벤트 감지
+
+```java
+calendarView.setOnDateChangeListener((view, year, month, dayOfMonth) -> {
+    String selectedDate = toFormatDate(year, month, dayOfMonth);
+    fetchData(selectedDate); // 서버 요청 함수 호출
+});
+```
+
+사용자가 날짜를 누르면 fetchData() 함수 실행
+
+선택한 날짜는 yyyy-MM-dd 형식의 문자열로 변환
+<br><br><br>
+### 🔄 2. 서버 요청 및 RecyclerView 갱신
+
+```java
+private void fetchData(String date) {
+    moneyService.getMoneyFlowDate(date).enqueue(new Callback<List<MoneyFlow>>() {
+        @Override
+        public void onResponse(Call<List<MoneyFlow>> call, Response<List<MoneyFlow>> response) {
+            if (response.isSuccessful() && response.body() != null) {
+                moneyFlowList.clear();
+                moneyFlowList.addAll(response.body());
+                dayAdapter.setDate(date);
+                dayAdapter.notifyDataSetChanged(); // UI 갱신
+            }
+        }
+
+        @Override
+        public void onFailure(Call<List<MoneyFlow>> call, Throwable t) {
+            // 예외 처리
+        }
+    });
+}
+```
+
+Retrofit을 사용하여 서버와 비동기 통신
+
+성공적으로 데이터를 받아오면 리스트 갱신 및 UI 업데이트
+<br><br><br><br>
+### 🔗3. Retrofit 연결 설정
+
+```java
+Retrofit retrofit = new Retrofit.Builder()
+    .baseUrl("http://10.0.2.2:8080")
+    .addConverterFactory(GsonConverterFactory.create())
+    .build();
+
+moneyService = retrofit.create(MoneyService.class);
+```
+
+
+
+### 🧩 4. 인터페이스 정의
+```java
+interface MoneyService {
+    @GET("/money/{date}/contents")
+    Call<List<MoneyFlow>> getMoneyFlowDate(@Path("date") String date);
+}
+```
+
+### 🌐 5. 서버 - Spring Boot Controller
+<br>
+
+```java
+@GetMapping("/money/{date}/contents")
+public List<MoneyFlow> getByDate(@PathVariable("date") String date) {
+    LocalDate localDate = LocalDate.parse(date);
+    return moneyFlowRepo.findByNowDate(localDate);
+}
+```
+
+클라이언트로부터 날짜를 받아 LocalDate로 변환
+
+해당 날짜의 MoneyFlow 데이터를 DB에서 조회하여 반환
+
+
+
+<br><br><br>
+### 💡 기술 포인트
+CalendarView의 setOnDateChangeListener 활용
+
+Retrofit 기반 비동기 API 연동
+
+Spring Boot REST API 구성 (/money/{date}/contents)
+
+RecyclerView 리스트 업데이트 구조화
+
+클라이언트-서버 간 날짜 포맷 통일 (yyyy-MM-dd)
+
+
+
+<br><br><br><br>
 
 <br><br><br>
 ### 3. 기능소개 및 시연
