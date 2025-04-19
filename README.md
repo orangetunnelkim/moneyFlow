@@ -116,27 +116,33 @@
 #### 날짜별 지출내역 조회
 <br>
 
-## 📅 날짜 기반 가계부 조회 기능
 
-사용자가 `CalendarView`에서 날짜를 선택하면, 해당 날짜의 지출 내역을 서버에서 받아와 RecyclerView에 표시합니다.  
-클라이언트와 서버 간 비동기 통신을 통해 날짜별 데이터를 효율적으로 처리하며, 사용자에게 즉각적인 피드백을 제공합니다.
-
-### ✅ 흐름 요약
-
-1. 사용자 캘린더 날짜 선택
-2. 선택된 날짜를 문자열로 변환
-3. 서버에 해당 날짜의 데이터를 요청 (Retrofit)
-4. 응답받은 리스트를 RecyclerView에 연결하여 화면 갱신
-
----
 
 
 > 기술 스택
 
-<br> 프런트 엔드는 안드로이드 스튜디오를 사용하였습니다. 프런트엔드 단의 레트로핏과 서버의 스프링부트를 연결해 JSON데이터를 주고 받는 RESTAPI를 사용했습니다.
-<br> 그림의 윗부분처럼 일단 처음엔 윈도우 운영체제에서 테스트 DB인 h2를 연결해 사용하였습니다.
-<br>코딩을 마무리 한 후엔 AWS의 서버인 EC2의 리눅스 운영체제에 자바개발도구를 설치하고 개발한 코드들과 초기설정값들을 jar파일로 복사한걸 EC2에서 실행되게 하였고
-<br> RDS의 엔진으로는 postgresql을 DB로 사용하므로써 유지보수, 백업, 업데이트 등 운영부담을 감소시켰습니다.
+## 🛠 기술 스택 및 인프라 구성
+
+### 📱 Frontend (Android Studio)
+- Java 기반 Android 앱 개발
+- `Retrofit2` 사용하여 백엔드(Spring Boot)와 REST API 통신
+- JSON 포맷으로 데이터 송수신
+- 날짜 선택, 예산 설정, 지출 시각화 등 UI 기능 구현
+
+### 🌐 Backend (Spring Boot)
+- `Spring Boot` 기반 RESTful API 서버 구축
+- 테스트 환경: `H2` 인메모리 데이터베이스 사용
+- 빌드 후 `.jar` 파일로 패키징하여 배포
+
+### ☁️ 인프라 (AWS)
+- **서버**: `EC2` 인스턴스 (리눅스 기반)  
+  → JDK 설치 후 `.jar` 파일 실행을 통해 백엔드 서버 운영
+- **DB**: `AWS RDS - PostgreSQL`  
+  → 데이터 영속성 확보 및 백업, 유지보수, 확장성 강화
+- 배포 이후에도 유지보수 및 기능 업데이트가 용이하도록 구성
+
+
+
 ![image](https://github.com/user-attachments/assets/e0976b31-5ba4-4561-9b53-77a741d49bc7)
 
 <br><br><br>
@@ -227,6 +233,20 @@ interface MoneyService {
     public Call<List<MoneyFlow>> getMonthPay(@Path("categoryId") Long categoryId,@Path("year")int year,@Path("month")int month);
 }
 ```
+
+## 📅 날짜 기반 가계부 조회 기능
+
+사용자가 `CalendarView`에서 날짜를 선택하면, 해당 날짜의 지출 내역을 서버에서 받아와 RecyclerView에 표시합니다.  
+클라이언트와 서버 간 비동기 통신을 통해 날짜별 데이터를 효율적으로 처리하며, 사용자에게 즉각적인 피드백을 제공합니다.
+
+### ✅ 흐름 요약
+
+1. 사용자 캘린더 날짜 선택
+2. 선택된 날짜를 문자열로 변환
+3. 서버에 해당 날짜의 데이터를 요청 (Retrofit)
+4. 응답받은 리스트를 RecyclerView에 연결하여 화면 갱신
+
+---
 
 ### 🖱️ 1. 날짜 선택 이벤트 감지
 
