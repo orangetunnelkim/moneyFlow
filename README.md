@@ -170,7 +170,7 @@ Retrofit을 사용하여 서버와 비동기 통신
 
 성공적으로 데이터를 받아오면 리스트 갱신 및 UI 업데이트
 <br><br><br><br>
-### 🔗 Retrofit 연결 설정
+### 🔗3. Retrofit 연결 설정
 
 ```java
 Retrofit retrofit = new Retrofit.Builder()
@@ -181,7 +181,17 @@ Retrofit retrofit = new Retrofit.Builder()
 moneyService = retrofit.create(MoneyService.class);
 ```
 
-### 🌐 3. 서버 - Spring Boot Controller
+
+
+### 🧩 4. 인터페이스 정의
+```java
+interface MoneyService {
+    @GET("/money/{date}/contents")
+    Call<List<MoneyFlow>> getMoneyFlowDate(@Path("date") String date);
+}
+```
+
+### 🌐 5. 서버 - Spring Boot Controller
 <br>
 
 ```java
@@ -192,18 +202,11 @@ public List<MoneyFlow> getByDate(@PathVariable("date") String date) {
 }
 ```
 
-### 🧩 인터페이스 정의
-
 클라이언트로부터 날짜를 받아 LocalDate로 변환
 
 해당 날짜의 MoneyFlow 데이터를 DB에서 조회하여 반환
 
-```java
-interface MoneyService {
-    @GET("/money/{date}/contents")
-    Call<List<MoneyFlow>> getMoneyFlowDate(@Path("date") String date);
-}
-```
+
 
 <br><br><br>
 ### 💡 기술 포인트
