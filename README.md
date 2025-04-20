@@ -75,14 +75,15 @@
 ### 1. 프로젝트 개요
 > 주요기능 요약
 #### CRUD(조회,생성,수정,삭제)
-<br>
-가계부를 관리하기 위해서 아래와같은 속성의 DB를 CRUD 할 수 있도록 하였습니다.
+
 <br> 
-이 프로젝트의 가장 작은 구성요소인 DB입니다. 
+날짜, 수입/지출여부, 카테고리아이디, 사용처, 지출금액 속성을 가진 DB를 CRUD 할 수 있도록 하였습니다.
 <br>
 <br>
 
-![일 가계부](https://github.com/user-attachments/assets/cdc7696b-0caf-4a05-b0dc-b6b0d5f551fa)
+![일가계부 간단](https://github.com/user-attachments/assets/eaa14e92-23c1-4291-81ad-eb91bc9f74b0)
+
+
 <br><br><br><br>
 
 #### 카테고리별 지출관리(6개)
