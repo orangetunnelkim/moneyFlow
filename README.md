@@ -180,7 +180,7 @@ CI/CD (도입 예정)
 ④예산설정 액티비티에서 <설정> 버튼을 누르면 입력한 예산으로 리스트의 객체들을 수정한걸 서버로 보내 DB에 저장함
 <br><br><br><br>
 
-> API설계
+#### 2.2 API명세 및 구조
 <br>
 프런트 엔드에서 요청하는 HTTP메써드, URL들과 간략한 명세입니다. @Path는 URL에 포함되어 전달되고, @Body는 json데이터로 http요청의 본문에 참조자나 리스트가 전달되어 서버에서 dto로 받게됩니다.
 <br> 메써드의 리턴타입으로 서버에서 통신후 받아오는 데이터 타입을 확인할 수 있습니다.
@@ -203,7 +203,7 @@ interface MoneyService {
     @GET("/getMonthlyCost/{year}/{month}")   //해당 월의 예산객체를 가져옴
     public Call<List<Predict>> getMonthlyCost(@Path("year") int year ,@Path("month") int month);
 
-    @GET("/getCategories")     //모든 카테고리의 아이콘 이미지와 카테고리이름을 가져옴
+    @GET("/getCategories")     //모든 카테고리의 아이콘 이미지와 카테고리이름을 가져옴 (리사이클러뷰 표시용)
     public Call<List<Categories>> getCategories();
 
     @POST("/updatePredict")    //예산 객체를 수정함
