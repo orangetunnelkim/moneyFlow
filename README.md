@@ -90,7 +90,7 @@
 <br>
 위에 만든 일 가계부를 기반으로 아래와 같이 예산(predict)과 지출(monthCost)을 관리하는 DB가 만들어 지도록 클래스를 구성하였습니다.
 <br>
-카테고리별로 관리되기 떄문에 카테고리 아이디 속성을 추가하였습니다.
+해당년월, 예산, 월 지출, 카테고리 아이디 속성이 있습니다.
 <br>
 
 ![예산DB](https://github.com/user-attachments/assets/e3f0c2c8-58f7-47eb-b104-c08cc709a40e)
