@@ -52,7 +52,7 @@
 3. 💡 핵심 구현 포인트 (중요 기능 상세 설명)  
    3.1 날짜별 지출 내역 조회 (RecyclerView + Retrofit + CalendarView)  
    3.2 프론트엔드 - 리사이클러뷰 어댑터 구현  
-   3.3 예산 설정 및 시각화 (ProgressBar + 예산 저장)  
+   3.3 월별 예산(Predict) 객체 자동 생성 및 관리 로직
    3.4 카테고리별 지출 관리 (다대일 매핑 + 이미지, 이름 출력)   
 
 5. 📸 기능 시연  
@@ -422,9 +422,152 @@ public void onClick(View view) {
 
 - **유지보수에 유리한 구조로 기능 분기 및 UI 구성**
 
+<br><br><br><br><br><br>
+
+#### 3.3 🔄 월별 예산(Predict) 객체 자동 생성 및 관리 로직
+<br><br><br><br>
+#### 🧭 전체 흐름
+- 사용자가 메인 화면에서 버튼을 클릭
+→ selectDate (예: "2025-04-01")를 Intent로 전달
+
+- PredictActivity에서 전달받은 날짜 분해
+→ selectYear, selectMonth를 추출하여 백엔드 요청
+
+- Retrofit을 통해 월별 예산/지출 데이터 요청
+→ GET /getMonthlyCost/{year}/{month}
+
+- 백엔드는 해당 월의 지출 데이터를 카테고리별로 집계 + 예산 데이터와 매칭
+→ 없는 예산은 monthCost만 채워서 추가
+
+- 프론트에서는 총합 지출과 예산을 계산하여 UI에 시각화
+→ ProgressBar, TextView, RecyclerView를 활용하여 구성
+  <br><br><br><br>
+#### 💡 설계 의도
+- "이번 달 예산" 버튼 클릭 시, 사용자가 선택한 날짜 기준으로
+- 해당 월의 모든 카테고리에 대한 예산(Predict) 정보를 UI에 표시
+
+- 이때 해당 카테고리에 지출 내역이 없어도
+➤ 지출: 0, 예산: 0 상태의 Predict 객체가 자동으로 생성되어야 함
+➤ 즉, UI 기준으로 모든 카테고리에 Predict 객체가 존재해야 함
+
+<br><br><br>
+📱 프론트엔드 처리 흐름
+```java
+Button pay_predict = findViewById(R.id.month_pay_rv);
+pay_predict.setOnClickListener(v -> {
+    Intent intent = new Intent(MainActivity.this, PredictActivity.class);
+    intent.putExtra("Date", selectDate); // ex. "2025-04-01"
+    startActivity(intent);
+});
+```
+```java
+// PredictActivity onCreate() 내부 구문
+String[] parts = intent.getStringExtra("Date").split("-");
+selectYear = Integer.parseInt(parts[0]);
+selectMonth = Integer.parseInt(parts[1]);
+
+showMonthCost(selectYear, selectMonth)); //showMonthCost()함수 내부에서 getMonthlyCost() 서버 통신 메써드호출
+```
+<br><br>
+선택된 날짜를 기준으로 월별 예산 데이터를 백엔드에 요청
+<br><br>
+
+🔧 백엔드 요청 및 처리
+```java
+@GET("/getMonthlyCost/{year}/{month}") //Retrofit 요청 접수부분
+Call<List<Predict>> getMonthlyCost(@Path("year") int year ,@Path("month") int month);
+```
+```java
+@GetMapping("/getMonthlyCost/{year}/{month}")
+public ResponseEntity<List<PredictDTO>> setupMonthlyCost(...) {
+    List<PredictDTO> predictDTOList = monthlySetUp(year, month);
+    return ResponseEntity.ok(predictDTOList);
+}
+```
+<br><br><br>
+⚙️ 현재 구현 방식 (백엔드)
+```java
+List<Object[]> results = moneyFlowRepo.getMonthlyCostByCategory(year, month); //일 가계부 데이터를 기반으로 한 복합쿼리문으로 데이터흐름 만듬.
+// 결과: 해당 월에 지출 내역이 있는 카테고리만 포함
+
+List<Predict> existingPredicts = predictRepo.findByYearAndMonth(year, month);
+List<Predict> spendingList = new ArrayList<>(existingPredicts);
+
+results.forEach(row -> {
+    // 카테고리 참조자, 총지출 파싱
+if (existingPredict != null) {
+    existingPredict.setMonthCost(totalCost);  // 지출 금액만 업데이트
+} else {
+    spendingList.add(new Predict(null, year_p, month_p, category, 0, totalCost));  // 예산은 0으로 기본 생성
+}
+ // 있으면 업데이트, 없으면 새로 생성
+});
+```
+**DB생성 로직**
+<br><br>
+| 지출 데이터 | 예산 데이터 | 처리 방식                                                         |
+|-------------|--------------|------------------------------------------------------------------|
+| 있음        | 있음         | `monthCost`만 업데이트                                          |
+| 있음        | 없음         | `Predict` 새로 생성 (예산 0, 지출만 있음)                      |
+| 없음        | 있음         | 그대로 둠 (이번 달 해당 카테고리 지출 없음)                    |
+| 없음        | 없음         | `Predict` 생성되지 않음                                        |
+
+<br><br><br>
+
+**조건에 따른 DB설계**
+- `@Query`를 사용한 복합 SQL 쿼리로 월별 카테고리 지출 집계 처리
+- 예산 데이터가 있는 경우에는 지출만 업데이트, 없는 경우는 Predict 객체 새로 생성
+- 결과적으로 Predict 테이블은 월별-카테고리별로 지출 정보가 있는 경우에만 자동 갱신되며, 예산이 설정되지 않은 경우에도 뷰에서 시각적으로 표시 가능
+- 이는 DB를 직접 조작하는 것이 아니라, 데이터 흐름에 따라 동적으로 객체를 생성/갱신하는 방식으로 효율적 데이터 관리 구현
+
+<br>
+
+- ✅ 장점: 실제 지출 내역에 따라 Predict를 구성함
+- ❌ 단점: 지출 내역이 전혀 없는 카테고리는 누락됨 → 예산을 설정하는 작업시 null처리를 따로 해줘야함
 
 
 <br><br><br>
+
+🚨 개선 포인트 (설계 의도와 불일치)
+
+- List<Object[]> results = ... 쿼리는 money_flow 테이블 기준으로 구성됨
+
+➤ 지출이 없는 카테고리는 결과에서 누락되므로 Predict 객체도 생성되지 않음
+
+- 이는 해당 월, 카테고리에 지출이 없어도 예산객체를 생성하려 했던 초기기획과 어긋남
+
+<br><br><br>
+✅ 개선 아이디어 (LEFT JOIN 활용)
+
+```java
+SELECT 
+    :year AS year,
+    :month AS month,
+    c.id AS category_id,
+    SUM(m.cost) AS total_cost // 이부분을 COALESCE(SUM(m.cost), 0) AS total_cost 로 수정 
+FROM 
+    categories c
+LEFT JOIN 
+    money_flow m 
+ON 
+    c.id = m.categories_id 
+    AND YEAR(m.now_date) = :year 
+    AND MONTH(m.now_date) = :month 
+    AND m.spend = true
+GROUP BY 
+    c.id
+
+```
+
+- categories를 기준으로 LEFT JOIN → 모든 카테고리를 기준으로 Predict 생성 가능
+
+
+
+
+
+
+
+
 ### 3. 기능소개 및 시연
 <br>
 
