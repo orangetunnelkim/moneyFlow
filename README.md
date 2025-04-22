@@ -336,12 +336,12 @@ public List<MoneyFlow> getByDate(@PathVariable("date") String date) {
 
 RecyclerView의 마지막 항목에 `"내역 추가"` 버튼 형태의 뷰를 함께 표시하여,  
 하나의 어댑터 내에서 **"기존 데이터 리스트" + "새 항목 추가 인터페이스"** 를 함께 구현했습니다.
-
+<br><br><br><br>
 #### 📌 핵심 설계 의도
 - 사용자가 목록의 마지막에서 바로 새로운 지출 내역을 추가할 수 있도록 직관적인 UI 제공
 - 어댑터의 **데이터 리스트 개수 +1** 만큼 ViewHolder를 만들어 분기 처리
 - 동일한 ViewHolder에서 `onClick()` 이벤트를 분기하여, 클릭 위치에 따라 `AddPay`, `EditPay` 두 액티비티로 이동
-
+<br><br><br><br>
 #### ✅ 구현 개요
 
 ##### 1. View 개수 설정
@@ -424,7 +424,7 @@ public void onClick(View view) {
 <br><br><br><br><br><br>
 
 #### 3.3 🔄 월별 예산(Predict) 객체 자동 생성 및 관리 로직
-<br><br><br><br>
+<br><br>
 #### 🧭 전체 흐름
 - 사용자가 메인 화면에서 버튼을 클릭
 → selectDate (예: "2025-04-01")를 Intent로 전달
@@ -502,6 +502,7 @@ if (existingPredict != null) {
  // 있으면 업데이트, 없으면 새로 생성
 });
 ```
+<br><br><br>
 **DB생성 로직**
 <br><br>
 | 지출 데이터 | 예산 데이터 | 처리 방식                                                         |
@@ -561,16 +562,16 @@ GROUP BY
 - categories를 기준으로 LEFT JOIN → 모든 카테고리를 기준으로 Predict 생성 가능
 
 
+<br><br><br><br><br>
 
 
 
 
 
-
-### 3. 기능소개 및 시연
+### 4. 기능소개 및 시연
 <br>
 
-> 실행 영상
+#### 4.1 실행 영상
 <br>
 
 👉 [실행영상 보러가기](https://youtube.com/shorts/RXqdzRODD6k?si=Yqs7NZlkJiOhvtNX)
@@ -578,7 +579,7 @@ ctrl키를 누른채로 클릭하면 새창이 열립니다.
 
 <br><br><br><br>
 
->주요 화면 및 동작
+#### 4.2 주요 화면 스크린샷 
 
 
 #### 날짜선택
@@ -617,7 +618,7 @@ ctrl키를 누른채로 클릭하면 새창이 열립니다.
 이러한 방법으로 프런트엔드에서는 서버로부터 가져온 객체를 이용해 프로그레스바로 쉽게 표현했습니다.
 <br><br><br><br>
 
-### 4.핵심코드 설명
+### 5.핵심코드 스니펫
 
 >백엔드 주요코드
 
