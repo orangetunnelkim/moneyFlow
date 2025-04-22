@@ -315,15 +315,15 @@ public List<MoneyFlow> getByDate(@PathVariable("date") String date) {
 
 <br><br><br>
 ### 💡 기술 포인트
-CalendarView의 setOnDateChangeListener 활용
+- CalendarView의 setOnDateChangeListener 활용
 
-Retrofit 기반 비동기 API 연동
+- Retrofit 기반 비동기 API 연동
 
-Spring Boot REST API 구성 (/money/{date}/contents)
+- Spring Boot REST API 구성 (/money/{date}/contents)
 
-RecyclerView 리스트 업데이트 구조화
+- RecyclerView 리스트 업데이트 구조화
 
-클라이언트-서버 간 날짜 포맷 통일 (yyyy-MM-dd)
+- 클라이언트-서버 간 날짜 포맷 통일 (yyyy-MM-dd)
 
 
 
